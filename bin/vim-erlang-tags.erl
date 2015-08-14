@@ -117,6 +117,16 @@ main(Args) ->
     ets:delete(Tags).
 
 %% I know that using the process dictionary is not very nice...
+parse_args(["--list-languages"|_]) ->
+    io:format("Erlang~n"),
+    halt(0);
+parse_args([Arg|OtherArgs]) when Arg == "--fields=+l";
+                                 Arg == "--c-kinds=+p";
+                                 Arg == "--c++-kinds=+p";
+                                 Arg == "--sort=no";
+                                 Arg == "-f-";
+                                 Arg == "--language-force=erlang" ->
+    parse_args(OtherArgs);
 parse_args([]) ->
     ok;
 parse_args(["-"|OtherArgs]) ->
