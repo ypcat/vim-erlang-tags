@@ -124,8 +124,10 @@ parse_args([Arg|OtherArgs]) when Arg == "--fields=+l";
                                  Arg == "--c-kinds=+p";
                                  Arg == "--c++-kinds=+p";
                                  Arg == "--sort=no";
-                                 Arg == "-f-";
                                  Arg == "--language-force=erlang" ->
+    parse_args(OtherArgs);
+parse_args(["-f-"|OtherArgs]) ->
+    put(tagsfilename, stdout),
     parse_args(OtherArgs);
 parse_args([]) ->
     ok;
@@ -437,7 +439,10 @@ add_tag(Tags, Tag, File, TagAddress, Scope, Kind) ->
 tags_to_file(Tags, TagsFile) ->
     Header = "!_TAG_FILE_SORTED\t1\t/0=unsorted, 1=sorted/\n",
     Entries = lists:sort( [ tag_to_binary(Entry) || Entry <- ets:tab2list(Tags) ] ),
-    file:write_file(TagsFile, [Header, Entries]),
+    case TagsFile of
+        stdout -> io:fwrite([Header, Entries]);
+        _ -> file:write_file(TagsFile, [Header, Entries])
+    end,
     ok.
 
 tag_to_binary({{Tag, File, Scope, Kind}, TagAddress}) ->
